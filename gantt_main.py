@@ -129,6 +129,7 @@ class ProjectSpanish(Project):
         dwg = svgwrite.container.Group()
 
         cal = {0: 'Lu', 1: 'Ma', 2: 'Xe', 3: 'Ju', 4: 'Vi', 5: 'Sa', 6: 'Do'}
+        month = {'january':'enero','february':'febrero','march':'marzo','april':'abril','may':'mayo','june':'junio','jule':'julio','august':'agosto','october',:'octubre','november':'noviembre','december':'diciembre'}
 
         maxx += 1
 
@@ -190,7 +191,7 @@ class ProjectSpanish(Project):
                         font_weight="bold"))
                 # Month name
                 if jour.day == 1:
-                    vlines.add(svgwrite.text.Text('{0}'.format(jour.strftime("%B")),
+                    vlines.add(svgwrite.text.Text('{0}'.format(month[jour.strftime("%B").lower()].capitalize()),
                                                   insert=(
                                                       (x*10+1+offset)*mm, 10*mm),
                                                   fill='#800000', stroke='#800000', stroke_width=0,
@@ -218,7 +219,7 @@ class ProjectSpanish(Project):
                                                   font_family=_font_attributes()['font_family'], font_size=15+5, font_weight="bold"))
                 # Month name
                 if jour.day <= 7:
-                    vlines.add(svgwrite.text.Text('{0}'.format(jour.strftime("%B")),
+                    vlines.add(svgwrite.text.Text('{0}'.format(month[jour.strftime("%B").lower()].capitalize()),
                                                   insert=(
                                                       (x*10+1+offset)*mm, 10*mm),
                                                   fill='#800000', stroke='#800000', stroke_width=0,
