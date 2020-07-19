@@ -1,12 +1,22 @@
 from gantt import *
-mm = 3.543307
 
-from gantt.gantt import _font_attributes, _not_worked_days, _my_svgwrite_drawing_wrapper
+from gantt.gantt import _font_attributes, _not_worked_days, _my_svgwrite_drawing_wrapper, mm, cm
 
 
 class _svgwrite_generator(svgwrite.Drawing):
+    """ svgwrite generator wrapper
+    """
 
     def generate_svg_code(self, width='100%', height='100%'):   
+        """ generate svg code
+
+        Args:
+            width (str, optional): width of the svg. Defaults to '100%'.
+            height (str, optional): height of the svg. Defaults to '100%'.
+
+        Returns:
+            svg (str): code XLM in string format
+        """
         self['height'] = height
         self['width'] = width     
         svg = '<?xml version="1.0" encoding="utf-8" ?>\n'
@@ -19,8 +29,10 @@ class _svgwrite_generator(svgwrite.Drawing):
         #     svg += pretty_xml(svg, indent=indent)
         return svg 
 
-class ProjectSpanish(Project):
 
+
+class ProjectSpanish(Project):
+    """ Inherits from Project, some translations of months and days. """
 
     def make_svg_for_tasks(self, filename, today=None, start=None, end=None, scale=DRAW_WITH_DAILY_SCALE, title_align_on_left=False, offset=0):
         """
@@ -129,7 +141,6 @@ class ProjectSpanish(Project):
         dwg = svgwrite.container.Group()
 
         cal = {0: 'Lu', 1: 'Ma', 2: 'Xe', 3: 'Ju', 4: 'Vi', 5: 'Sa', 6: 'Do'}
-        month = {'january':'enero','february':'febrero','march':'marzo','april':'abril','may':'mayo','june':'junio','jule':'julio','august':'agosto','october',:'octubre','november':'noviembre','december':'diciembre'}
 
         maxx += 1
 
@@ -191,7 +202,7 @@ class ProjectSpanish(Project):
                         font_weight="bold"))
                 # Month name
                 if jour.day == 1:
-                    vlines.add(svgwrite.text.Text('{0}'.format(month[jour.strftime("%B").lower()].capitalize()),
+                    vlines.add(svgwrite.text.Text('{0}'.format(jour.strftime("%B")),
                                                   insert=(
                                                       (x*10+1+offset)*mm, 10*mm),
                                                   fill='#800000', stroke='#800000', stroke_width=0,
@@ -219,7 +230,7 @@ class ProjectSpanish(Project):
                                                   font_family=_font_attributes()['font_family'], font_size=15+5, font_weight="bold"))
                 # Month name
                 if jour.day <= 7:
-                    vlines.add(svgwrite.text.Text('{0}'.format(month[jour.strftime("%B").lower()].capitalize()),
+                    vlines.add(svgwrite.text.Text('{0}'.format(jour.strftime("%B")),
                                                   insert=(
                                                       (x*10+1+offset)*mm, 10*mm),
                                                   fill='#800000', stroke='#800000', stroke_width=0,
@@ -270,7 +281,27 @@ class ProjectSpanish(Project):
 
 
 class HyperLinkedTask(Task):
+    """ Inherits from Task, adds some link functionality to the title, resource, and lateral box """
+
     def __init__(self, name, link_name=None, link_lateral=None, link_resource=None, start=None, stop=None, duration=None, depends_of=None, resources=None, percent_done=0, color=None, fullname=None, display=True, state=''):
+        """Hyper linked task
+
+        Args:
+            name (str): name of the task
+            link_name (str, optional): link over the name of the task. Defaults to None.
+            link_lateral (str, optional): link over the side box. Defaults to None.
+            link_resource (str, optional): link over the resource. Defaults to None.
+            start ([type], optional): [description]. Defaults to None.
+            stop ([type], optional): [description]. Defaults to None.
+            duration ([type], optional): [description]. Defaults to None.
+            depends_of ([type], optional): [description]. Defaults to None.
+            resources ([type], optional): [description]. Defaults to None.
+            percent_done (int, optional): [description]. Defaults to 0.
+            color ([type], optional): [description]. Defaults to None.
+            fullname ([type], optional): [description]. Defaults to None.
+            display (bool, optional): [description]. Defaults to True.
+            state (str, optional): [description]. Defaults to ''.
+        """
         super().__init__(name, start, stop, duration, depends_of, resources, percent_done, color, fullname, display, state)
         self.link_name = link_name
         self.link_resource = link_resource
@@ -410,6 +441,7 @@ class HyperLinkedTask(Task):
                                             )
         if self.link_lateral:
             link = svg.add(svgwrite.container.Hyperlink(href=self.link_lateral))
+            link.add(svgwrite.base.Title('Link a OT'))
         if link:
             link.add(linea_lateral)
 
@@ -490,6 +522,7 @@ class HyperLinkedTask(Task):
                     'stroke'], stroke_width=_font_attributes()['stroke_width'], font_family=_font_attributes()['font_family'], font_size=15)
         if self.link_name:
             link = svg.add(svgwrite.container.Hyperlink(href=self.link_name))
+            link.add(svgwrite.base.Title('Ir a equipo'))
         if link:
             link.add(titulo)
         else:
@@ -503,6 +536,7 @@ class HyperLinkedTask(Task):
                     'stroke'], stroke_width=_font_attributes()['stroke_width'], font_family=_font_attributes()['font_family'], font_size=15-5)
             if self.link_resource:
                 link = svg.add(svgwrite.container.Hyperlink(href=self.link_resource))
+                link.add(svgwrite.base.Title('Ir a grupo'))
             if link:
                 link.add(recurso)
             else:
@@ -510,8 +544,17 @@ class HyperLinkedTask(Task):
         return (svg, 1)
 
 
-class HiperLinkedProject(ProjectSpanish):
+class HiperLinkedProject(ProjectSpanish):    
+    """ Inherits from ProjectSpanish, adds some link functionality to the title """
+
     def __init__(self, name="", link=None, color=None):
+        """Hiper linked project
+
+        Args:
+            name (str, optional): [description]. Defaults to "".
+            link ([type], optional): [description]. Defaults to None.
+            color ([type], optional): [description]. Defaults to None.
+        """
         super().__init__(name, color)
         self.link = link
 
@@ -562,6 +605,7 @@ class HiperLinkedProject(ProjectSpanish):
                 titulo = svgwrite.text.Text('{0}'.format(self.name), insert=((6*level+3+offset)*mm, ((prev_y)*10+7)*mm), fill=_font_attributes()['fill'], stroke=_font_attributes()['stroke'], stroke_width=_font_attributes()['stroke_width'], font_family=_font_attributes()['font_family'], font_size=15+3)
                 if self.link:
                     link = fprj.add(svgwrite.container.Hyperlink(href=self.link))
+                    link.add(svgwrite.base.Title('Ir a equipo'))
                 if link:
                     link.add(titulo)
                 else:
