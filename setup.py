@@ -5,15 +5,15 @@ with open('README.md', 'r') as fh:
     long_description = fh.read()
 
 setup(
-    name='python-gantt-2',
-    version='0.0.1',
+    name='gantt-lib-lautarodapin',
+    version='0.0.2',
     url="https://github.com/lautarodapin/gantt-lib",
     author="Dapino Lautaro",
     author_email="lautarodapin@gmail.com",
     description='Extension of `python-gantt` with added functionality for django',
     packages=setuptools.find_packages(),
-    py_modules=['gantt_lib'],
-    package_dir={'':'src'},
+    # py_modules=['gantt_lib'],
+    # package_dir={'':'src'},
     long_description=long_description,
     long_description_content_type='text/markdown',
     python_requires='>=3.7',
