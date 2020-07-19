@@ -7,6 +7,9 @@ with open('README.md', 'r') as fh:
 setup(
     name='python_gantt_lautarodapin',
     version='0.0.1',
+    url="https://github.com/lautarodapin/gantt-lib",
+    author="Dapino Lautaro",
+    author_email="lautarodapin@gmail.com",
     description='Extension of `python-gantt` with added functionality for django',
     packages=setuptools.find_packages(),
     long_description=long_description,
