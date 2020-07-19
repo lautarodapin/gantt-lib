@@ -13,7 +13,7 @@ setup(
     description='Extension of `python-gantt` with added functionality for django',
     packages=setuptools.find_packages(),
     py_modules=['gantt_lib'],
-    package_dir={'':'gantt_lib'}
+    package_dir={'':'src'},
     long_description=long_description,
     long_description_content_type='text/markdown',
     python_requires='>=3.7',
