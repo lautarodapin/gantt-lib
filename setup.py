@@ -5,7 +5,7 @@ with open('README.md', 'r') as fh:
     long_description = fh.read()
 
 setup(
-    name='python-gantt-lautarodapin',
+    name='python_gantt_lautarodapin',
     version='0.0.1',
     description='Extension of `python-gantt` with added functionality for django',
     packages=setuptools.find_packages(),
