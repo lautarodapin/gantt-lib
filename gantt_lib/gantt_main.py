@@ -1,6 +1,6 @@
 from gantt import *
 
-from gantt.gantt import _font_attributes, _not_worked_days, _my_svgwrite_drawing_wrapper, mm, cm
+from gantt.gantt import __LOG__, _font_attributes, _not_worked_days, _my_svgwrite_drawing_wrapper, mm, cm
 
 
 class _svgwrite_generator(svgwrite.Drawing):
@@ -25,8 +25,6 @@ class _svgwrite_generator(svgwrite.Drawing):
         for stylesheet in self._stylesheets:
             svg += stylesheet_template % stylesheet
         svg += self.tostring()
-        # if pretty:  # write easy readable XML file
-        #     svg += pretty_xml(svg, indent=indent)
         return svg 
 
 
@@ -34,13 +32,12 @@ class _svgwrite_generator(svgwrite.Drawing):
 class ProjectSpanish(Project):
     """ Inherits from Project, some translations of months and days. """
 
-    def make_svg_for_tasks(self, filename, today=None, start=None, end=None, scale=DRAW_WITH_DAILY_SCALE, title_align_on_left=False, offset=0):
+    def get_string_svg_for_tasks(self, today=None, start=None, end=None, scale=DRAW_WITH_DAILY_SCALE, title_align_on_left=False, offset=0):
         """
-        Draw gantt of tasks and output it to filename. If start or end are
+        Draw gantt of tasks and outputs the svg in str format. If start or end are
         given, use them as reference, otherwise use project first and last day
 
         Keyword arguments:
-        filename -- string, filename to save to OR file object
         today -- datetime.date of day marked as a reference
         start -- datetime.date of first day to draw
         end -- datetime.date of last day to draw
@@ -122,7 +119,6 @@ class ProjectSpanish(Project):
         
         return dwg.generate_svg_code(width=(maxx+1+offset/10)*cm, height=(pheight+3)*cm)
 
- 
 
 
     def _svg_calendar(self, maxx, maxy, start_date, today=None, scale=DRAW_WITH_DAILY_SCALE, offset=0):
