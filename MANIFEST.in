@@ -1,5 +1,4 @@
 include *.in
 include LICENSE
 recursive-include __pycache__ *.pyc
-recursive-include src *.py
-recursive-include src *.txt
+recursive-include gantt_lib *.txt
