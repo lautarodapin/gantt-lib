@@ -279,7 +279,7 @@ class ProjectSpanish(Project):
 class HyperLinkedTask(Task):
     """ Inherits from Task, adds some link functionality to the title, resource, and lateral box """
 
-    def __init__(self, name, link_name=None, link_lateral=None, link_resource=None, start=None, stop=None, duration=None, depends_of=None, resources=None, percent_done=0, color=None, fullname=None, display=True, state=''):
+    def __init__(self, name, link_name=None, link_lateral=None, link_resource=None, start=None, target='_self', stop=None, duration=None, depends_of=None, resources=None, percent_done=0, color=None, fullname=None, display=True, state=''):
         """Hyper linked task
 
         Args:
@@ -289,6 +289,7 @@ class HyperLinkedTask(Task):
             link_resource (str, optional): link over the resource. Defaults to None.
             start ([type], optional): [description]. Defaults to None.
             stop ([type], optional): [description]. Defaults to None.
+            target -- str, default '_self'. Can be '_target' | '_self' ...etc
             duration ([type], optional): [description]. Defaults to None.
             depends_of ([type], optional): [description]. Defaults to None.
             resources ([type], optional): [description]. Defaults to None.
@@ -302,6 +303,7 @@ class HyperLinkedTask(Task):
         self.link_name = link_name
         self.link_resource = link_resource
         self.link_lateral = link_lateral
+        self.target = target
 
     def svg(self, prev_y=0, link=None, start=None, end=None, color=None, level=None, scale=DRAW_WITH_DAILY_SCALE, title_align_on_left=False, offset=0):
         """
@@ -436,7 +438,7 @@ class HyperLinkedTask(Task):
                                             opacity=0.85,
                                             )
         if self.link_lateral:
-            link = svg.add(svgwrite.container.Hyperlink(href=self.link_lateral))
+            link = svg.add(svgwrite.container.Hyperlink(href=self.link_lateral, target=self.target))
             link.add(svgwrite.base.Title('Link a OT'))
         if link:
             link.add(linea_lateral)
@@ -517,7 +519,7 @@ class HyperLinkedTask(Task):
         titulo = svgwrite.text.Text(self.fullname, insert=((tx)*mm, (y + 5)*mm), fill=_font_attributes()['fill'], stroke=_font_attributes()[
                     'stroke'], stroke_width=_font_attributes()['stroke_width'], font_family=_font_attributes()['font_family'], font_size=15)
         if self.link_name:
-            link = svg.add(svgwrite.container.Hyperlink(href=self.link_name))
+            link = svg.add(svgwrite.container.Hyperlink(href=self.link_name, target=self.target))
             link.add(svgwrite.base.Title('Ir a equipo'))
         if link:
             link.add(titulo)
@@ -531,7 +533,7 @@ class HyperLinkedTask(Task):
             recurso = svgwrite.text.Text("{0}".format(t), insert=(tx*mm, (y + 8.5)*mm), fill='purple', stroke=_font_attributes()[
                     'stroke'], stroke_width=_font_attributes()['stroke_width'], font_family=_font_attributes()['font_family'], font_size=15-5)
             if self.link_resource:
-                link = svg.add(svgwrite.container.Hyperlink(href=self.link_resource))
+                link = svg.add(svgwrite.container.Hyperlink(href=self.link_resource, target=self.target))
                 link.add(svgwrite.base.Title('Ir a grupo'))
             if link:
                 link.add(recurso)
@@ -543,16 +545,18 @@ class HyperLinkedTask(Task):
 class HiperLinkedProject(ProjectSpanish):    
     """ Inherits from ProjectSpanish, adds some link functionality to the title """
 
-    def __init__(self, name="", link=None, color=None):
+    def __init__(self, name="", target='_self', link=None, color=None):
         """Hiper linked project
 
         Args:
             name (str, optional): [description]. Defaults to "".
             link ([type], optional): [description]. Defaults to None.
+            target -- str, default '_self'. Can be '_target' | '_self' ...etc
             color ([type], optional): [description]. Defaults to None.
         """
         super().__init__(name, color)
         self.link = link
+        self.target = target
 
 
 
@@ -600,7 +604,7 @@ class HiperLinkedProject(ProjectSpanish):
                 link = None
                 titulo = svgwrite.text.Text('{0}'.format(self.name), insert=((6*level+3+offset)*mm, ((prev_y)*10+7)*mm), fill=_font_attributes()['fill'], stroke=_font_attributes()['stroke'], stroke_width=_font_attributes()['stroke_width'], font_family=_font_attributes()['font_family'], font_size=15+3)
                 if self.link:
-                    link = fprj.add(svgwrite.container.Hyperlink(href=self.link))
+                    link = fprj.add(svgwrite.container.Hyperlink(href=self.link, target=self.target))
                     link.add(svgwrite.base.Title('Ir a equipo'))
                 if link:
                     link.add(titulo)
