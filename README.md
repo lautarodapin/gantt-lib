@@ -7,13 +7,13 @@ This includes some translation to spanish of the days and months, new classes fo
 
 Run the following to install:
 
-```python
+```
 pip install gantt-lib-lautarodapin
 ```
 
 ## Aditional requirements
 
-* python-gantt see [link](https://pypi.org/project/python-gantt/)
+* Library: `python-gantt` see [link](https://pypi.org/project/python-gantt/)
 * Author: Alexandre Norman (norman at xael.org)
  
 
@@ -32,7 +32,7 @@ project = gantt_lib.HiperLinkedProject(
 
 project.add_task(gantt_lib.HyperLinkedTask(
     name= 'task 1',
-        start=datetime.date(2020,7,1),
+        start=datetime.datetime.date(2020,7,1),
         duration=5,
         resources=[resource],
         percent_done=0,
@@ -61,10 +61,19 @@ svg = project.get_string_svg_for_tasks(
 )
 
 
-
 ```
+* *Result*: [SVG](https://github.com/lautarodapin/gantt-lib/blob/master/file.svg?sanitize=true)
+
+
+
 
 ## Author
 
 Lautaro Dapino
+
+
+
+### Version 0.0.5
+* Added `target`for the links.
+* Added new method for rendering the `svg`into `str`format.
 
