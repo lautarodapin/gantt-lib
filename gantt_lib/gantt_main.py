@@ -312,9 +312,8 @@ class HyperLinkedTask(Task):
         self.resource_title = resource_title
         
     def draw_left_side_mark(self):
-        left_box = svgwrite
-                    .shapes
-                    .Rect(
+        # TODO x offset and y not exising
+        left_box = svgwrite.shapes.Rect(
                         insert=((x+1+offset)*mm-(3+offset)*mm, (y+1)*mm),
                         size=((3+offset)*mm, 8*mm),
                         fill='#dadada',
@@ -329,6 +328,7 @@ class HyperLinkedTask(Task):
             self.svg.add(link)
 
     def draw_task_title(self):
+        # TODO x offset and y not exising
         title = svgwrite.text.Text(self.fullname, insert=((tx)*mm, (y + 5)*mm), fill=_font_attributes()['fill'], stroke=_font_attributes()[
                     'stroke'], stroke_width=_font_attributes()['stroke_width'], font_family=_font_attributes()['font_family'], font_size=15)
 
@@ -338,6 +338,7 @@ class HyperLinkedTask(Task):
         self.svg.add(link)
     
     def draw_resources(self):
+        # TODO x offset and y not exising
         t = " / ".join(["{0}".format(r.name) for r in self.resources])
         link = None
         recurso = svgwrite.text.Text("{0}".format(t), insert=(tx*mm, (y + 8.5)*mm), fill='purple', stroke=_font_attributes()[

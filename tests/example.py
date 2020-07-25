@@ -1,24 +1,8 @@
-# python gantt lib
+# example.py
 
-This project is an extension of the `python-gantt` module, providing some extra functionality.
-This includes some translation to spanish of the days and months, new classes for add hyperlinks to the tasks and projects, and svg in format string for using it as context in Django lib.
-
-## Instalation
-
-Run the following to install:
-
-```
-pip install gantt-lib-lautarodapin
-```
-
-## Aditional requirements
-
-* Library: `python-gantt` see [link](https://pypi.org/project/python-gantt/)
-* Author: Alexandre Norman (norman at xael.org)
- 
-
-## Usage
-```python
+import sys
+# insert at 1, 0 is the script path (or '' in REPL)
+sys.path.insert(1, '../gantt_lib')
 
 import gantt_lib
 import datetime
@@ -46,34 +30,18 @@ project.add_task(gantt_lib.HyperLinkedTask(
 
 # make_svg_for_task returns the xml code in string format, this way you can use it as context in django or flask
 # also saves it into a file
+'''
 svg = project.make_svg_for_tasks(
         'file.svg', 
         today=datetime.date(2020,7,15), 
         start=datetime.date(2020,7,1), 
         end=datetime.date(2020,7,20)
         )
-
+'''
 # Or you can get only the svg (str) code
 svg = project.get_string_svg_for_tasks(
         today=datetime.date(2020,7,15), 
         start=datetime.date(2020,7,1), 
         end=datetime.date(2020,7,20)
 )
-
-
-```
-* *Result*: [SVG](https://github.com/lautarodapin/gantt-lib/blob/master/file.svg?sanitize=true)
-
-
-
-
-## Author
-
-Lautaro Dapino
-
-
-
-### Version 0.0.5
-* Added `target`for the links.
-* Added new method for rendering the `svg`into `str`format.
-
+print(svg)
