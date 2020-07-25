@@ -311,8 +311,7 @@ class HyperLinkedTask(Task):
         self.title_title = title_title
         self.resource_title = resource_title
         
-    def draw_left_side_mark(self):
-        # TODO x offset and y not exising
+    def draw_left_side_mark(self, x, y, offset, color):
         left_box = svgwrite.shapes.Rect(
                         insert=((x+1+offset)*mm-(3+offset)*mm, (y+1)*mm),
                         size=((3+offset)*mm, 8*mm),
@@ -327,28 +326,28 @@ class HyperLinkedTask(Task):
             link.add(left_box)
             self.svg.add(link)
 
-    def draw_task_title(self):
-        # TODO x offset and y not exising
+    def draw_task_title(self, x, y, offset, tx):
         title = svgwrite.text.Text(self.fullname, insert=((tx)*mm, (y + 5)*mm), fill=_font_attributes()['fill'], stroke=_font_attributes()[
                     'stroke'], stroke_width=_font_attributes()['stroke_width'], font_family=_font_attributes()['font_family'], font_size=15)
 
-        link = svg.add(svgwrite.container.Hyperlink(href=self.link_name or '#', target=self.target or None))
+        link = self.svg.add(svgwrite.container.Hyperlink(href=self.link_name or '#', target=self.target or None))
         link.add(svgwrite.base.Title(self.title_title or 'title link'))
         link.add(title)
         self.svg.add(link)
     
-    def draw_resources(self):
-        # TODO x offset and y not exising
+    def draw_resources(self, x, y, offset, tx):
         t = " / ".join(["{0}".format(r.name) for r in self.resources])
         link = None
-        recurso = svgwrite.text.Text("{0}".format(t), insert=(tx*mm, (y + 8.5)*mm), fill='purple', stroke=_font_attributes()[
+        resource = svgwrite.text.Text("{0}".format(t), insert=(tx*mm, (y + 8.5)*mm), fill='purple', stroke=_font_attributes()[
                 'stroke'], stroke_width=_font_attributes()['stroke_width'], font_family=_font_attributes()['font_family'], font_size=15-5)
         link = self.svg.add(svgwrite.container.Hyperlink(href=self.link_resource or '#', target=self.target or None))
         link.add(svgwrite.base.Title(self.resource_title or 'resource link'))
         link.add(resource)
 
-    def custom_draw(self, svg):
+    def custom_draw(self, svg, x, y, offset):
         """ Overwrite for custom drawing
+
+        You should return the svg object passed as an argument.
 
         Args:
             svg (container.Group): Group container for svg.
@@ -479,13 +478,13 @@ class HyperLinkedTask(Task):
         # SVG container
         self.svg = svgwrite.container.Group(id=re.sub(r"[ ,'\/()]", '_', self.name))
 
-        custom_svg = self.custom_draw(self.svg)
+        custom_svg = self.custom_draw(self.svg, x, y, offset)
         if custom_svg:
             return (custom_svg, 1)
         # Marca lateral izquierda para link a OT
-        self.draw_left_side_mark()
+        self.draw_left_side_mark(x, y, offset, color)
         # Cuadrado de atras
-        svg.add(svgwrite.shapes.Rect(
+        self.svg.add(svgwrite.shapes.Rect(
                 insert=((x+1+offset)*mm, (y+1)*mm),
                 size=((d-2)*mm, 8*mm),
                 fill=color,
@@ -493,7 +492,7 @@ class HyperLinkedTask(Task):
                 stroke_width=2,
                 opacity=0.85,
                 ))
-        svg.add(svgwrite.shapes.Rect(
+        self.svg.add(svgwrite.shapes.Rect(
                 insert=((x+1+offset)*mm, (y+6)*mm),
                 size=(((d-2))*mm, 3*mm),
                 fill="#909090",
@@ -503,7 +502,7 @@ class HyperLinkedTask(Task):
                 ))
 
         if add_modified_begin_mark:
-            svg.add(svgwrite.shapes.Rect(
+            self.svg.add(svgwrite.shapes.Rect(
                     insert=((x+1)*mm, (y+1)*mm),
                     size=(5*mm, 4*mm),
                     fill="#0000FF",
@@ -513,7 +512,7 @@ class HyperLinkedTask(Task):
                     ))
 
         if add_modified_end_mark:
-            svg.add(svgwrite.shapes.Rect(
+            self.svg.add(svgwrite.shapes.Rect(
                     insert=((x+d-7+1)*mm, (y+1)*mm),
                     size=(5*mm, 4*mm),
                     fill="#0000FF",
@@ -523,7 +522,7 @@ class HyperLinkedTask(Task):
                     ))
 
         if add_begin_mark:
-            svg.add(svgwrite.shapes.Rect(
+            self.svg.add(svgwrite.shapes.Rect(
                     insert=((x+1)*mm, (y+1)*mm),
                     size=(5*mm, 8*mm),
                     fill="#000000",
@@ -532,7 +531,7 @@ class HyperLinkedTask(Task):
                     opacity=0.2,
                     ))
         if add_end_mark:
-            svg.add(svgwrite.shapes.Rect(
+            self.svg.add(svgwrite.shapes.Rect(
                     insert=((x+d-7+1)*mm, (y+1)*mm),
                     size=(5*mm, 8*mm),
                     fill="#000000",
@@ -543,7 +542,7 @@ class HyperLinkedTask(Task):
 
         if self.percent_done is not None and self.percent_done > 0:
             # Bar shade
-            svg.add(svgwrite.shapes.Rect(
+            self.svg.add(svgwrite.shapes.Rect(
                     insert=((x+1+offset)*mm, (y+6)*mm),
                     size=(((d-2)*self.percent_done/100)*mm, 3*mm),
                     fill="#F08000",
@@ -558,22 +557,12 @@ class HyperLinkedTask(Task):
             tx = 5
 
 
-        self.draw_task_title()
-        link=None
-        titulo = svgwrite.text.Text(self.fullname, insert=((tx)*mm, (y + 5)*mm), fill=_font_attributes()['fill'], stroke=_font_attributes()[
-                    'stroke'], stroke_width=_font_attributes()['stroke_width'], font_family=_font_attributes()['font_family'], font_size=15)
-        if self.link_name:
-            link = svg.add(svgwrite.container.Hyperlink(href=self.link_name, target=self.target))
-            link.add(svgwrite.base.Title('Ir a equipo'))
-        if link:
-            link.add(titulo)
-        else:
-            svg.add(titulo)
+        self.draw_task_title(x, y, offset, tx)
        
 
         if self.resources is not None:
-            self.draw_resources(self)
-        return (svg, 1)
+            self.draw_resources(x, y, offset, tx)
+        return (self.svg, 1)
 
 
 class HiperLinkedProject(ProjectSpanish):    
