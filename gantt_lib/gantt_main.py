@@ -1,5 +1,5 @@
 from gantt import *
-
+import svgwrite
 from gantt.gantt import __LOG__, _font_attributes, _not_worked_days, _my_svgwrite_drawing_wrapper, mm, cm
 
 
@@ -279,7 +279,7 @@ class ProjectSpanish(Project):
 class HyperLinkedTask(Task):
     """ Inherits from Task, adds some link functionality to the title, resource, and lateral box """
 
-    def __init__(self, name, link_name=None, link_lateral=None, link_resource=None, start=None, target='_self', stop=None, duration=None, depends_of=None, resources=None, percent_done=0, color=None, fullname=None, display=True, state=''):
+    def __init__(self, name, link_name=None, link_lateral=None, link_resource=None, left_box_title='left link',title_title='title link',resource_title='resource link', start=None, target='_self', stop=None, duration=None, depends_of=None, resources=None, percent_done=0, color=None, fullname=None, display=True, state=''):
         """Hyper linked task
 
         Args:
@@ -290,6 +290,9 @@ class HyperLinkedTask(Task):
             start ([type], optional): [description]. Defaults to None.
             stop ([type], optional): [description]. Defaults to None.
             target -- str, default '_self'. Can be '_target' | '_self' ...etc
+            left_box_title (str, optional): title description of the left box. Default to 'left link'.
+            title_title (str, optional): title description for the name of the task. Default to 'title link'.
+            resource_title (str, optional): title description for the resource. Default to 'resource link'.
             duration ([type], optional): [description]. Defaults to None.
             depends_of ([type], optional): [description]. Defaults to None.
             resources ([type], optional): [description]. Defaults to None.
@@ -304,6 +307,53 @@ class HyperLinkedTask(Task):
         self.link_resource = link_resource
         self.link_lateral = link_lateral
         self.target = target
+        self.left_box_title = left_box_title
+        self.title_title = title_title
+        self.resource_title = resource_title
+        
+    def draw_left_side_mark(self):
+        left_box = svgwrite
+                    .shapes
+                    .Rect(
+                        insert=((x+1+offset)*mm-(3+offset)*mm, (y+1)*mm),
+                        size=((3+offset)*mm, 8*mm),
+                        fill='#dadada',
+                        stroke=color,
+                        stroke_width=2,
+                        opacity=0.85,
+                        )
+        if self.link_lateral:
+            link = svgwrite.container.Hyperlink(href=self.link_lateral, target=self.target)
+            link.add(svgwrite.base.Title(self.left_box_title or 'Left link'))
+            link.add(left_box)
+            self.svg.add(link)
+
+    def draw_task_title(self):
+        title = svgwrite.text.Text(self.fullname, insert=((tx)*mm, (y + 5)*mm), fill=_font_attributes()['fill'], stroke=_font_attributes()[
+                    'stroke'], stroke_width=_font_attributes()['stroke_width'], font_family=_font_attributes()['font_family'], font_size=15)
+
+        link = svg.add(svgwrite.container.Hyperlink(href=self.link_name or '#', target=self.target or None))
+        link.add(svgwrite.base.Title(self.title_title or 'title link'))
+        link.add(title)
+        self.svg.add(link)
+    
+    def draw_resources(self):
+        t = " / ".join(["{0}".format(r.name) for r in self.resources])
+        link = None
+        recurso = svgwrite.text.Text("{0}".format(t), insert=(tx*mm, (y + 8.5)*mm), fill='purple', stroke=_font_attributes()[
+                'stroke'], stroke_width=_font_attributes()['stroke_width'], font_family=_font_attributes()['font_family'], font_size=15-5)
+        link = self.svg.add(svgwrite.container.Hyperlink(href=self.link_resource or '#', target=self.target or None))
+        link.add(svgwrite.base.Title(self.resource_title or 'resource link'))
+        link.add(resource)
+
+    def custom_draw(self, svg):
+        """ Overwrite for custom drawing
+
+        Args:
+            svg (container.Group): Group container for svg.
+        """
+
+        return False
 
     def svg(self, prev_y=0, link=None, start=None, end=None, color=None, level=None, scale=DRAW_WITH_DAILY_SCALE, title_align_on_left=False, offset=0):
         """
@@ -425,24 +475,14 @@ class HyperLinkedTask(Task):
 
         self.drawn_y_coord = y
 
-        svg = svgwrite.container.Group(id=re.sub(r"[ ,'\/()]", '_', self.name))
-        
-        # Marca lateral izquierda para link a OT
-        link = None
-        linea_lateral = svgwrite.shapes.Rect(
-                                            insert=((x+1+offset)*mm-(3+offset)*mm, (y+1)*mm),
-                                            size=((3+offset)*mm, 8*mm),
-                                            fill='#dadada',
-                                            stroke=color,
-                                            stroke_width=2,
-                                            opacity=0.85,
-                                            )
-        if self.link_lateral:
-            link = svg.add(svgwrite.container.Hyperlink(href=self.link_lateral, target=self.target))
-            link.add(svgwrite.base.Title('Link a OT'))
-        if link:
-            link.add(linea_lateral)
+        # SVG container
+        self.svg = svgwrite.container.Group(id=re.sub(r"[ ,'\/()]", '_', self.name))
 
+        custom_svg = self.custom_draw(self.svg)
+        if custom_svg:
+            return (custom_svg, 1)
+        # Marca lateral izquierda para link a OT
+        self.draw_left_side_mark()
         # Cuadrado de atras
         svg.add(svgwrite.shapes.Rect(
                 insert=((x+1+offset)*mm, (y+1)*mm),
@@ -515,6 +555,9 @@ class HyperLinkedTask(Task):
             tx = x+2
         else:
             tx = 5
+
+
+        self.draw_task_title()
         link=None
         titulo = svgwrite.text.Text(self.fullname, insert=((tx)*mm, (y + 5)*mm), fill=_font_attributes()['fill'], stroke=_font_attributes()[
                     'stroke'], stroke_width=_font_attributes()['stroke_width'], font_family=_font_attributes()['font_family'], font_size=15)
@@ -528,17 +571,7 @@ class HyperLinkedTask(Task):
        
 
         if self.resources is not None:
-            t = " / ".join(["{0}".format(r.name) for r in self.resources])
-            link = None
-            recurso = svgwrite.text.Text("{0}".format(t), insert=(tx*mm, (y + 8.5)*mm), fill='purple', stroke=_font_attributes()[
-                    'stroke'], stroke_width=_font_attributes()['stroke_width'], font_family=_font_attributes()['font_family'], font_size=15-5)
-            if self.link_resource:
-                link = svg.add(svgwrite.container.Hyperlink(href=self.link_resource, target=self.target))
-                link.add(svgwrite.base.Title('Ir a grupo'))
-            if link:
-                link.add(recurso)
-            else:
-                svg.add(recurso)
+            self.draw_resources(self)
         return (svg, 1)
 
 
