@@ -11,7 +11,8 @@ resource = gantt_lib.Resource("Resource 1")
 project = gantt_lib.HiperLinkedProject(
                                       name='Project', 
                                       link='mypage/link/to/project',
-                                      target='_self' #HTML target (it opens the link on the same page)
+                                      target='_self', #HTML target (it opens the link on the same page)
+                                        language='en-en',
                                       )
 
 project.add_task(gantt_lib.HyperLinkedTask(
